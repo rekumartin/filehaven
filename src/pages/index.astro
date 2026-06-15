@@ -1,0 +1,103 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ToolCard from '../components/ToolCard.astro';
+import PrivacyBadge from '../components/PrivacyBadge.astro';
+
+const tools = [
+  {
+    icon: '🖼️',
+    title: 'HEIC to JPG',
+    description:
+      'Convert iPhone HEIC/HEIF photos to JPG instantly — no upload, no account, no size limits.',
+    href: '/heic-to-jpg',
+  },
+  {
+    icon: '🔐',
+    title: 'Remove Photo Metadata',
+    description:
+      'Strip GPS location, camera model, and all hidden EXIF data from JPEG and PNG photos before sharing.',
+    href: '/remove-photo-metadata',
+  },
+  {
+    icon: '📄',
+    title: 'Compress PDF',
+    description:
+      'Shrink a PDF to under 1 MB, 2 MB, or any custom size limit. Choose between lossless optimization and maximum compression.',
+    href: '/compress-pdf',
+  },
+  {
+    icon: '🔑',
+    title: 'Encrypt a File',
+    description:
+      'Password-protect any file with AES-256-GCM encryption using your browser\'s built-in crypto engine. No libraries downloaded.',
+    href: '/encrypt-file',
+  },
+] as const;
+---
+
+<BaseLayout
+  title="PrivateFileTools — Free, Private, Browser-Based File Tools"
+  description="Convert and process files 100% in your browser. No uploads, no servers, no data collection. Fast, private, and free."
+  canonicalPath="/"
+>
+  <!-- Hero -->
+  <section class="max-w-5xl mx-auto px-4 sm:px-6 pt-16 pb-12 text-center">
+    <div class="flex justify-center mb-6">
+      <PrivacyBadge />
+    </div>
+    <h1 class="text-4xl sm:text-5xl font-bold text-gray-900 leading-tight tracking-tight mb-5">
+      File tools that respect<br class="hidden sm:inline" /> your privacy
+    </h1>
+    <p class="text-lg text-gray-500 max-w-xl mx-auto leading-relaxed">
+      Every tool on this site runs entirely in your browser. Your files never touch our
+      servers — because there are no servers. Processing is instant, local, and private.
+    </p>
+  </section>
+
+  <!-- How it works — three trust signals -->
+  <section
+    class="max-w-3xl mx-auto px-4 sm:px-6 pb-14 grid grid-cols-1 sm:grid-cols-3 gap-6 text-center"
+    aria-label="How it works"
+  >
+    {
+      [
+        {
+          icon: '🔒',
+          heading: 'No uploads',
+          body: 'Files are read and processed in your browser tab. Nothing is sent over the network.',
+        },
+        {
+          icon: '⚡',
+          heading: 'Instant',
+          body: 'No waiting for a server. Conversion runs at full CPU speed on your machine.',
+        },
+        {
+          icon: '🆓',
+          heading: 'Always free',
+          body: 'No account required, no watermarks, no file-size limits imposed by a server.',
+        },
+      ].map(({ icon, heading, body }) => (
+        <div class="flex flex-col items-center gap-2">
+          <span class="text-3xl" aria-hidden="true">
+            {icon}
+          </span>
+          <h2 class="font-semibold text-gray-900">{heading}</h2>
+          <p class="text-sm text-gray-500 leading-relaxed">{body}</p>
+        </div>
+      ))
+    }
+  </section>
+
+  <!-- Tools grid -->
+  <section class="max-w-5xl mx-auto px-4 sm:px-6 pb-20" aria-labelledby="tools-heading">
+    <h2
+      id="tools-heading"
+      class="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-5"
+    >
+      Available tools
+    </h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {tools.map((tool) => <ToolCard {...tool} />)}
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,82 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  /** Absolute path from root, e.g. "/heic-to-jpg" */
+  canonicalPath?: string;
+}
+
+const {
+  title,
+  description,
+  ogTitle,
+  ogDescription,
+  canonicalPath = '/',
+} = Astro.props;
+
+const siteUrl = 'https://privatefiletools.com';
+const canonical = `${siteUrl}${canonicalPath}`;
+const ogImageUrl = `${siteUrl}/og-default.png`;
+
+// Cloudflare Web Analytics — set PUBLIC_CF_BEACON_TOKEN in Cloudflare Pages env vars
+const cfBeaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="index, follow" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={canonical} />
+
+    <!-- Primary meta -->
+    <title>{title}</title>
+    <meta name="description" content={description} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={ogTitle ?? title} />
+    <meta property="og:description" content={ogDescription ?? description} />
+    <meta property="og:image" content={ogImageUrl} />
+
+    <!-- Twitter card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content={canonical} />
+    <meta name="twitter:title" content={ogTitle ?? title} />
+    <meta name="twitter:description" content={ogDescription ?? description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <!-- Privacy-friendly analytics (no cookies, no personal data) -->
+    {cfBeaconToken && (
+      <script
+        is:inline
+        defer
+        src="https://static.cloudflare.com/beacon.min.js"
+        data-cf-beacon={`{"token":"${cfBeaconToken}"}`}
+      ></script>
+    )}
+  </head>
+  <body class="min-h-screen bg-white flex flex-col text-gray-900 antialiased">
+    <!-- Skip link: visible only on keyboard focus, reaches main content -->
+    <a
+      href="#main-content"
+      class="sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:top-4 focus-visible:left-4 focus-visible:z-[100] focus-visible:px-4 focus-visible:py-2 focus-visible:bg-blue-600 focus-visible:text-white focus-visible:rounded-lg focus-visible:font-medium focus-visible:shadow-lg"
+    >
+      Skip to main content
+    </a>
+    <Header />
+    <main id="main-content" class="flex-1">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

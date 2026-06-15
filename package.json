@@ -1,0 +1,28 @@
+{
+  "name": "private-file-tools",
+  "version": "0.1.0",
+  "description": "Privacy-first, client-side file tools — nothing is uploaded",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "audit": "npm audit"
+  },
+  "dependencies": {
+    "astro": "6.4.7",
+    "autoprefixer": "10.5.0",
+    "heic2any": "0.0.4",
+    "pdf-lib": "1.17.1",
+    "pdfjs-dist": "6.0.227",
+    "piexifjs": "1.0.6",
+    "postcss": "8.5.15",
+    "tailwindcss": "3.4.19"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

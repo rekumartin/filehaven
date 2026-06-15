@@ -1,0 +1,184 @@
+---
+/**
+ * Reusable drag-and-drop / click-to-select file input.
+ *
+ * Dispatches a `filedropzone:change` CustomEvent on the root element when files
+ * are selected, with `detail: { files: File[] }`. The parent page listens for
+ * this event and handles processing.
+ *
+ * Usage:
+ *   <FileDropzone id="my-zone" accept=".heic,.heif" multiple />
+ *
+ *   document.getElementById('my-zone').addEventListener('filedropzone:change', (e) => {
+ *     const { files } = e.detail; // File[]
+ *   });
+ */
+interface Props {
+  id: string;
+  accept: string;
+  multiple?: boolean;
+  label?: string;
+  hint?: string;
+}
+
+const {
+  id,
+  accept,
+  multiple = false,
+  label = 'Drop files here, or click to select',
+  hint,
+} = Astro.props;
+
+const acceptDisplay = accept
+  .split(',')
+  .map((s) => s.trim().replace(/^\./, '').toUpperCase())
+  .filter((s, i, arr) => arr.indexOf(s) === i) // dedupe
+  .join(', ');
+---
+
+<div
+  id={id}
+  class="file-dropzone relative border-2 border-dashed border-gray-300 rounded-2xl p-10 text-center cursor-pointer transition-colors duration-150 hover:border-blue-400 hover:bg-blue-50/30"
+  data-accept={accept}
+  data-multiple={multiple ? 'true' : 'false'}
+  role="button"
+  tabindex="0"
+  aria-label={label}
+>
+  <!-- Hidden native file input -->
+  <input
+    type="file"
+    class="sr-only"
+    accept={accept}
+    multiple={multiple || undefined}
+    aria-hidden="true"
+    tabindex="-1"
+  />
+
+  <!-- Idle state (default) -->
+  <div class="dropzone-idle flex flex-col items-center gap-3 pointer-events-none">
+    <svg
+      class="text-gray-400"
+      width="40"
+      height="40"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="17 8 12 3 7 8" />
+      <line x1="12" y1="3" x2="12" y2="15" />
+    </svg>
+    <p class="font-medium text-gray-700">{label}</p>
+    {hint && <p class="text-sm text-gray-500">{hint}</p>}
+    <p class="text-xs text-gray-500 mt-1">Accepts: {acceptDisplay}</p>
+  </div>
+
+  <!-- Files-selected state (shown after selection) -->
+  <div class="dropzone-selected hidden flex-col items-center gap-2 pointer-events-none">
+    <svg
+      class="text-blue-500"
+      width="32"
+      height="32"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+    </svg>
+    <p class="font-medium text-gray-900 dropzone-filename"></p>
+    <p class="text-sm text-gray-500">Click or drop to change selection</p>
+  </div>
+
+  <!-- Drag-over overlay (shown while dragging over) -->
+  <div
+    class="dropzone-dragover hidden absolute inset-0 rounded-2xl bg-blue-50 border-2 border-blue-400 flex items-center justify-center pointer-events-none"
+    aria-hidden="true"
+  >
+    <p class="text-blue-600 font-semibold text-lg">Release to add files</p>
+  </div>
+</div>
+
+<script>
+  function initDropzone(el: HTMLElement): void {
+    const input = el.querySelector('input[type="file"]') as HTMLInputElement;
+    const idleUI = el.querySelector('.dropzone-idle') as HTMLElement;
+    const selectedUI = el.querySelector('.dropzone-selected') as HTMLElement;
+    const filenameEl = el.querySelector('.dropzone-filename') as HTMLElement;
+    const dragoverUI = el.querySelector('.dropzone-dragover') as HTMLElement;
+
+    function showSelected(files: File[]): void {
+      idleUI.classList.remove('flex');
+      idleUI.classList.add('hidden');
+      selectedUI.classList.remove('hidden');
+      selectedUI.classList.add('flex');
+      filenameEl.textContent =
+        files.length === 1 ? files[0].name : `${files.length} files selected`;
+    }
+
+    function showDragover(visible: boolean): void {
+      if (visible) {
+        dragoverUI.classList.remove('hidden');
+        dragoverUI.classList.add('flex');
+      } else {
+        dragoverUI.classList.add('hidden');
+        dragoverUI.classList.remove('flex');
+      }
+    }
+
+    function handleFiles(list: FileList | File[]): void {
+      const files = Array.from(list);
+      if (!files.length) return;
+      showSelected(files);
+      el.dispatchEvent(
+        new CustomEvent('filedropzone:change', {
+          detail: { files },
+          bubbles: true,
+        }),
+      );
+    }
+
+    el.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('input')) return;
+      input.click();
+    });
+
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        input.click();
+      }
+    });
+
+    input.addEventListener('change', () => {
+      if (input.files?.length) handleFiles(input.files);
+    });
+
+    el.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      showDragover(true);
+    });
+
+    el.addEventListener('dragleave', (e) => {
+      if (!el.contains(e.relatedTarget as Node)) showDragover(false);
+    });
+
+    el.addEventListener('drop', (e) => {
+      e.preventDefault();
+      showDragover(false);
+      const files = e.dataTransfer?.files;
+      if (files?.length) handleFiles(files);
+    });
+  }
+
+  document.querySelectorAll<HTMLElement>('.file-dropzone').forEach(initDropzone);
+</script>

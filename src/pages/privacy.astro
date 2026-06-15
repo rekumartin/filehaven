@@ -1,0 +1,93 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+const year = new Date().getFullYear();
+---
+
+<BaseLayout
+  title="Privacy Policy — PrivateFileTools"
+  description="PrivateFileTools privacy policy: no files are uploaded, no file data is stored or seen by us, all processing is local."
+  canonicalPath="/privacy"
+>
+  <article class="max-w-2xl mx-auto px-4 sm:px-6 py-16">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">Privacy Policy</h1>
+    <p class="text-sm text-gray-400 mb-10">Last updated: {year}</p>
+
+    <div class="space-y-10 text-gray-600 leading-relaxed">
+      <section>
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">The plain-language version</h2>
+        <ul class="space-y-2 pl-0 list-none">
+          {
+            [
+              'No files you process are ever uploaded to any server.',
+              'No file data is stored, logged, or seen by us — ever.',
+              'All file processing happens locally inside your browser.',
+              'We collect no personal information.',
+              'We set no cookies.',
+            ].map((item) => (
+              <li class="flex items-start gap-2">
+                <span class="mt-0.5 shrink-0 text-green-500" aria-hidden="true">
+                  ✓
+                </span>
+                {item}
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-gray-900 mb-3">Files</h2>
+        <p>
+          When you use any tool on this site, your files are loaded into your browser's memory
+          using the standard browser File API. All processing is performed by JavaScript
+          running in your browser tab. No file data is transmitted over the network to any
+          server we operate or to any third party. We have no server-side component that could
+          receive file data.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-gray-900 mb-3">Analytics</h2>
+        <p>
+          We may use Cloudflare Web Analytics, a privacy-respecting, cookieless analytics
+          service that collects only aggregate traffic data (page views, referrers, country).
+          No personal identifiers are collected. No cross-site tracking occurs. If analytics
+          are enabled, no file data is ever included in any analytics event.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-gray-900 mb-3">Hosting</h2>
+        <p>
+          This site is hosted on{' '}
+          <a
+            href="https://pages.cloudflare.com"
+            class="text-blue-600 hover:underline underline-offset-2"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Cloudflare Pages
+          </a>. Cloudflare may log standard HTTP request metadata (IP address, User-Agent,
+          timestamp) as part of their CDN infrastructure. We do not control this logging.
+          Refer to{' '}
+          <a
+            href="https://www.cloudflare.com/privacypolicy/"
+            class="text-blue-600 hover:underline underline-offset-2"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Cloudflare's privacy policy
+          </a>{' '}
+          for details.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-gray-900 mb-3">Contact</h2>
+        <p>
+          Questions about this policy? Open an issue on the project's GitHub repository.
+        </p>
+      </section>
+    </div>
+  </article>
+</BaseLayout>

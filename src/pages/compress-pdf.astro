@@ -1,0 +1,524 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FileDropzone from '../components/FileDropzone.astro';
+import PrivacyBadge from '../components/PrivacyBadge.astro';
+import FaqBlock, { type FaqItem } from '../components/FaqBlock.astro';
+
+const faqs: FaqItem[] = [
+  {
+    question: 'Is my PDF uploaded to a server?',
+    answer:
+      'No. All compression happens inside your browser tab. Your document never leaves your device. The page even works offline once loaded — we have no server that could receive your file.',
+  },
+  {
+    question: 'What is the difference between "Optimize" and "Rasterize"?',
+    answer:
+      'Optimize compresses the PDF\'s internal structure and object streams without changing the content — text stays selectable, links still work, and file quality is identical. It typically reduces size by 5–25%. Rasterize re-draws every page as a JPEG image and rebuilds the PDF from those images. Text is no longer selectable or searchable, but files can shrink by 60–90%. Use Rasterize only when you must hit a strict upload size limit.',
+  },
+  {
+    question: 'Why does rasterizing make text non-selectable?',
+    answer:
+      'Rasterization converts each page into a flat image — like taking a screenshot. The resulting PDF contains only pixels, so there is no text layer for your PDF viewer to select. If you need the text to remain selectable, use Optimize mode instead.',
+  },
+  {
+    question: 'What if the file is still too large after compression?',
+    answer:
+      'If Optimize mode does not hit your target, try Rasterize mode and pick a smaller target size. Very large PDFs that are already mostly images (e.g. scanned documents) cannot be compressed much further without significantly reducing visual quality.',
+  },
+  {
+    question: 'Does this work with password-protected PDFs?',
+    answer:
+      'No. Password-protected PDFs cannot be loaded or modified without the password. Please remove the password using your PDF application first, then compress here.',
+  },
+];
+
+const presets = [
+  { label: '1 MB', bytes: 1_048_576 },
+  { label: '2 MB', bytes: 2_097_152 },
+  { label: '5 MB', bytes: 5_242_880 },
+];
+---
+
+<BaseLayout
+  title="Compress PDF — Reduce File Size In Your Browser"
+  description="Compress a PDF to under 1 MB, 2 MB, or any custom size limit — entirely in your browser. No upload required. Choose between lossless optimization and maximum compression."
+  canonicalPath="/compress-pdf"
+>
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 py-12">
+    <!-- Page header -->
+    <div class="mb-8">
+      <div class="flex items-center gap-3 mb-4 flex-wrap">
+        <span class="text-3xl leading-none" aria-hidden="true">📄</span>
+        <PrivacyBadge size="sm" />
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 tracking-tight">
+        Compress PDF
+      </h1>
+      <p class="text-gray-500 text-lg leading-relaxed">
+        Get your PDF under a target size — 1 MB, 2 MB, or any limit you need.
+        Pick a mode, set your target, drop the file. Everything runs in your browser.
+      </p>
+    </div>
+
+    <!-- Settings ─────────────────────────────────────────────────────────────── -->
+    <div class="mb-6 rounded-2xl border border-gray-200 bg-gray-50 p-5 space-y-5">
+
+      <!-- Mode selector -->
+      <fieldset>
+        <legend class="text-sm font-semibold text-gray-700 mb-3">Compression mode</legend>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- Optimize card -->
+          <label
+            id="card-optimize"
+            class="mode-card flex items-start gap-3 rounded-xl border-2 border-blue-500 bg-blue-50/50 p-4 cursor-pointer transition-colors"
+          >
+            <input
+              type="radio"
+              name="compress-mode"
+              value="optimize"
+              checked
+              class="sr-only"
+            />
+            <div class="mt-0.5 h-4 w-4 shrink-0 rounded-full border-2 border-blue-500 flex items-center justify-center mode-radio-dot">
+              <div class="h-2 w-2 rounded-full bg-blue-500 mode-dot-fill"></div>
+            </div>
+            <div>
+              <p class="font-semibold text-gray-900 text-sm">Optimize — keep text</p>
+              <p class="text-xs text-gray-500 mt-1 leading-relaxed">
+                Compresses PDF structure without re-encoding content. Text stays selectable and
+                links work. Typically <strong>5–25% smaller</strong>.
+              </p>
+            </div>
+          </label>
+
+          <!-- Rasterize card -->
+          <label
+            id="card-rasterize"
+            class="mode-card flex items-start gap-3 rounded-xl border-2 border-gray-200 p-4 cursor-pointer hover:border-gray-300 transition-colors"
+          >
+            <input
+              type="radio"
+              name="compress-mode"
+              value="rasterize"
+              class="sr-only"
+            />
+            <div class="mt-0.5 h-4 w-4 shrink-0 rounded-full border-2 border-gray-300 flex items-center justify-center mode-radio-dot">
+              <div class="h-2 w-2 rounded-full bg-transparent mode-dot-fill"></div>
+            </div>
+            <div>
+              <p class="font-semibold text-gray-900 text-sm">Rasterize — max compression</p>
+              <p class="text-xs text-gray-500 mt-1 leading-relaxed">
+                Re-renders each page as an image. Text becomes
+                <strong class="text-amber-700">non-selectable</strong>. Up to
+                <strong>60–90% smaller</strong> — use for strict size limits.
+              </p>
+            </div>
+          </label>
+        </div>
+
+        <!-- Rasterize trade-off warning (shown when rasterize selected) -->
+        <div
+          id="rasterize-warning"
+          class="hidden mt-3 flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3"
+          role="alert"
+        >
+          <svg
+            class="shrink-0 mt-0.5 text-amber-600"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+            <line x1="12" y1="9" x2="12" y2="13" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+          <p class="text-sm text-amber-800">
+            <strong>Text will not be selectable or searchable</strong> in the output.
+            Images may lose some detail. Only use this when you need to hit a strict upload limit
+            and text selection is not required.
+          </p>
+        </div>
+      </fieldset>
+
+      <!-- Target size -->
+      <div>
+        <p class="text-sm font-semibold text-gray-700 mb-3">Target maximum size</p>
+        <div class="flex flex-wrap items-center gap-2">
+          {
+            presets.map(({ label, bytes }, i) => (
+              <button
+                type="button"
+                class:list={[
+                  'target-btn rounded-lg px-4 py-1.5 text-sm font-medium border transition-colors',
+                  i === 1
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400',
+                ]}
+                data-bytes={bytes}
+                aria-pressed={i === 1 ? 'true' : 'false'}
+              >
+                {label}
+              </button>
+            ))
+          }
+          <span class="text-gray-400 text-sm" aria-hidden="true">or</span>
+          <div class="flex items-center gap-1.5">
+            <input
+              id="custom-mb"
+              type="number"
+              min="0.1"
+              step="0.1"
+              placeholder="Custom"
+              class="w-24 rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+              aria-label="Custom target size in megabytes"
+            />
+            <span class="text-sm text-gray-500">MB</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Re-compress notice (appears when settings change after a result is shown) -->
+    <div
+      id="recompress-notice"
+      class="hidden mb-4 flex items-center justify-between gap-4 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3"
+    >
+      <p class="text-sm text-blue-800">Settings changed — re-compress to apply.</p>
+      <button
+        id="recompress-btn"
+        type="button"
+        class="shrink-0 rounded-lg bg-blue-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+      >
+        Re-compress
+      </button>
+    </div>
+
+    <!-- Dropzone -->
+    <FileDropzone
+      id="pdf-dropzone"
+      accept=".pdf,application/pdf"
+      multiple={false}
+      label="Drop your PDF here, or click to select"
+      hint="Single PDF file — any size"
+    />
+
+    <!-- Status -->
+    <div id="status-area" class="mt-4 min-h-[1.5rem]" aria-live="polite" aria-atomic="true">
+      <div id="status-processing" class="hidden items-center gap-3 text-blue-600 text-sm">
+        <svg
+          class="animate-spin shrink-0"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          aria-hidden="true"
+        >
+          <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+        </svg>
+        <span id="status-text">Processing…</span>
+      </div>
+      <p id="status-error" class="hidden text-red-600 text-sm"></p>
+    </div>
+
+    <!-- Result -->
+    <section id="results-area" class="mt-8 hidden" aria-labelledby="results-heading">
+      <h2 id="results-heading" class="font-semibold text-gray-900 mb-4">Result</h2>
+      <div id="result-card"></div>
+    </section>
+
+    <!-- FAQ -->
+    <FaqBlock items={faqs} />
+
+    <!-- Other tools -->
+    <div class="mt-12 border-t border-gray-100 pt-8">
+      <p class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-4">More tools</p>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <a href="/heic-to-jpg" class="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 hover:border-blue-300 hover:shadow-sm transition-all">
+          <span class="text-xl leading-none shrink-0" aria-hidden="true">🖼️</span>
+          <div class="min-w-0">
+            <p class="font-medium text-gray-900 text-sm">HEIC to JPG</p>
+            <p class="text-xs text-gray-500 mt-0.5">Convert iPhone photos</p>
+          </div>
+        </a>
+        <a href="/remove-photo-metadata" class="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 hover:border-blue-300 hover:shadow-sm transition-all">
+          <span class="text-xl leading-none shrink-0" aria-hidden="true">🔐</span>
+          <div class="min-w-0">
+            <p class="font-medium text-gray-900 text-sm">Remove Metadata</p>
+            <p class="text-xs text-gray-500 mt-0.5">Strip GPS and camera info</p>
+          </div>
+        </a>
+        <a href="/encrypt-file" class="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 hover:border-blue-300 hover:shadow-sm transition-all">
+          <span class="text-xl leading-none shrink-0" aria-hidden="true">🔑</span>
+          <div class="min-w-0">
+            <p class="font-medium text-gray-900 text-sm">Encrypt a File</p>
+            <p class="text-xs text-gray-500 mt-0.5">AES-256 password protection</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+  import { setPdfWorkerSrc, compressPdf, type CompressMode, type CompressResult } from '../lib/pdfCompress';
+
+  // Register the worker URL at startup (just a string assignment — no pdfjs code loads yet)
+  setPdfWorkerSrc(pdfWorkerUrl);
+  import { downloadBlob } from '../lib/download';
+
+  /* ── DOM refs ──────────────────────────────────────────────────────────── */
+  const dropzone = document.getElementById('pdf-dropzone')!;
+  const statusProcessing = document.getElementById('status-processing')!;
+  const statusText = document.getElementById('status-text')!;
+  const statusError = document.getElementById('status-error')!;
+  const resultsArea = document.getElementById('results-area')!;
+  const resultCard = document.getElementById('result-card')!;
+  const recompressNotice = document.getElementById('recompress-notice')!;
+  const recompressBtn = document.getElementById('recompress-btn')!;
+
+  /* ── State ─────────────────────────────────────────────────────────────── */
+  let selectedMode: CompressMode = 'optimize';
+  let targetBytes = 2_097_152; // 2 MB default
+  let currentFile: File | null = null;
+  let hasResult = false;
+
+  /* ── Settings: mode selector ───────────────────────────────────────────── */
+  const modeInputs = document.querySelectorAll<HTMLInputElement>('input[name="compress-mode"]');
+  const modeCards = document.querySelectorAll<HTMLElement>('.mode-card');
+  const rasterizeWarning = document.getElementById('rasterize-warning')!;
+
+  function syncModeUI(): void {
+    modeCards.forEach((card) => {
+      const input = card.querySelector<HTMLInputElement>('input')!;
+      const isSelected = input.checked;
+      card.classList.toggle('border-blue-500', isSelected);
+      card.classList.toggle('bg-blue-50/50', isSelected);
+      card.classList.toggle('border-gray-200', !isSelected);
+      const dot = card.querySelector<HTMLElement>('.mode-dot-fill')!;
+      const ring = card.querySelector<HTMLElement>('.mode-radio-dot')!;
+      ring.classList.toggle('border-blue-500', isSelected);
+      ring.classList.toggle('border-gray-300', !isSelected);
+      dot.classList.toggle('bg-blue-500', isSelected);
+      dot.classList.toggle('bg-transparent', !isSelected);
+    });
+    const isRasterize = selectedMode === 'rasterize';
+    rasterizeWarning.classList.toggle('hidden', !isRasterize);
+    rasterizeWarning.classList.toggle('flex', isRasterize);
+  }
+
+  modeInputs.forEach((input) => {
+    input.addEventListener('change', () => {
+      selectedMode = input.value as CompressMode;
+      syncModeUI();
+      if (hasResult) showRecompressNotice();
+    });
+  });
+
+  /* ── Settings: target size ─────────────────────────────────────────────── */
+  const targetBtns = document.querySelectorAll<HTMLButtonElement>('.target-btn');
+  const customInput = document.getElementById('custom-mb') as HTMLInputElement;
+
+  function syncTargetUI(activeBytes: number): void {
+    targetBtns.forEach((btn) => {
+      const active = parseInt(btn.dataset.bytes!) === activeBytes;
+      btn.classList.toggle('bg-blue-600', active);
+      btn.classList.toggle('text-white', active);
+      btn.classList.toggle('border-blue-600', active);
+      btn.classList.toggle('bg-white', !active);
+      btn.classList.toggle('text-gray-700', !active);
+      btn.classList.toggle('border-gray-300', !active);
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+  }
+
+  targetBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      targetBytes = parseInt(btn.dataset.bytes!);
+      customInput.value = '';
+      syncTargetUI(targetBytes);
+      if (hasResult) showRecompressNotice();
+    });
+  });
+
+  customInput.addEventListener('input', () => {
+    const mb = parseFloat(customInput.value);
+    if (mb > 0 && isFinite(mb)) {
+      targetBytes = Math.round(mb * 1_048_576);
+      syncTargetUI(-1); // no preset selected
+      if (hasResult) showRecompressNotice();
+    }
+  });
+
+  /* ── Status helpers ────────────────────────────────────────────────────── */
+  function setProcessing(active: boolean, message = ''): void {
+    statusText.textContent = message;
+    statusProcessing.classList.toggle('hidden', !active);
+    statusProcessing.classList.toggle('flex', active);
+  }
+
+  function setError(message: string): void {
+    statusError.textContent = message;
+    statusError.classList.toggle('hidden', !message);
+  }
+
+  function showRecompressNotice(): void {
+    recompressNotice.classList.remove('hidden');
+    recompressNotice.classList.add('flex');
+  }
+
+  function hideRecompressNotice(): void {
+    recompressNotice.classList.add('hidden');
+    recompressNotice.classList.remove('flex');
+  }
+
+  /* ── Formatting helpers ────────────────────────────────────────────────── */
+  function fmtBytes(n: number): string {
+    if (n < 1_024) return `${n} B`;
+    if (n < 1_048_576) return `${(n / 1_024).toFixed(1)} KB`;
+    return `${(n / 1_048_576).toFixed(2)} MB`;
+  }
+
+  function pct(a: number, b: number): string {
+    return `${Math.round((1 - a / b) * 100)}%`;
+  }
+
+  /* ── Result card builder ───────────────────────────────────────────────── */
+  function showResult(result: CompressResult): void {
+    hasResult = true;
+    resultsArea.classList.remove('hidden');
+    resultCard.innerHTML = '';
+
+    const saved = result.originalSize - result.finalSize;
+    const reduction = pct(result.finalSize, result.originalSize);
+
+    const card = document.createElement('div');
+    card.className = 'rounded-2xl border border-gray-200 bg-white overflow-hidden';
+
+    // ── Size comparison row ────────────────────────────────────────────────
+    const sizeRow = document.createElement('div');
+    sizeRow.className = 'px-5 py-4 flex flex-col sm:flex-row sm:items-center gap-4 border-b border-gray-100';
+
+    const sizes = document.createElement('div');
+    sizes.className = 'flex-1 space-y-1';
+
+    const origLine = document.createElement('p');
+    origLine.className = 'text-sm text-gray-500';
+    origLine.innerHTML = `Original: <strong class="text-gray-700">${fmtBytes(result.originalSize)}</strong>`;
+
+    const finalLine = document.createElement('p');
+    finalLine.className = 'text-sm';
+
+    const hitTarget = result.hitTarget;
+    const targetLabel = fmtBytes(targetBytes);
+
+    if (hitTarget) {
+      finalLine.innerHTML =
+        `Final: <strong class="text-green-700">${fmtBytes(result.finalSize)}</strong>` +
+        ` <span class="text-green-600 font-medium">(${reduction} smaller ✓ under ${targetLabel})</span>`;
+    } else {
+      finalLine.innerHTML =
+        `Final: <strong class="text-gray-700">${fmtBytes(result.finalSize)}</strong>` +
+        ` <span class="text-amber-600 font-medium">(${reduction} smaller — still over ${targetLabel})</span>`;
+    }
+
+    sizes.append(origLine, finalLine);
+
+    const dlBtn = document.createElement('button');
+    dlBtn.type = 'button';
+    dlBtn.className =
+      'shrink-0 rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors';
+    dlBtn.textContent = 'Download';
+    dlBtn.setAttribute('aria-label', `Download ${result.filename}`);
+    dlBtn.addEventListener('click', () =>
+      downloadBlob(new Blob([result.bytes], { type: 'application/pdf' }), result.filename),
+    );
+
+    sizeRow.append(sizes, dlBtn);
+    card.appendChild(sizeRow);
+
+    // ── Mode-specific notes ────────────────────────────────────────────────
+    const notes: string[] = [];
+
+    if (result.mode === 'rasterize') {
+      notes.push(
+        `Pages re-rendered at ${result.finalQuality}% JPEG quality.` +
+          ' Text is not selectable or searchable in this PDF.',
+      );
+      if (!hitTarget && selectedMode === 'rasterize') {
+        notes.push(
+          `Could not reach ${targetLabel} at minimum quality (${result.finalQuality}%). ` +
+            'Try a larger target size.',
+        );
+      }
+    } else {
+      notes.push(
+        `Text, links, and structure are preserved. ${result.pageCount} page${result.pageCount !== 1 ? 's' : ''} processed.`,
+      );
+      if (!hitTarget) {
+        notes.push(
+          `Optimize mode saved ${fmtBytes(saved)} but couldn't reach ${targetLabel}. ` +
+            'Try <strong>Rasterize</strong> mode for greater compression.',
+        );
+      }
+    }
+
+    if (notes.length > 0) {
+      const noteBlock = document.createElement('div');
+      noteBlock.className = 'px-5 py-3 space-y-1';
+      notes.forEach((note) => {
+        const p = document.createElement('p');
+        p.className = 'text-xs text-gray-500 leading-relaxed';
+        p.innerHTML = note;
+        noteBlock.appendChild(p);
+      });
+      card.appendChild(noteBlock);
+    }
+
+    resultCard.appendChild(card);
+  }
+
+  /* ── Compression runner ────────────────────────────────────────────────── */
+  async function runCompression(): Promise<void> {
+    if (!currentFile) return;
+
+    hasResult = false;
+    resultsArea.classList.add('hidden');
+    resultCard.innerHTML = '';
+    hideRecompressNotice();
+    setError('');
+    setProcessing(true, 'Starting…');
+
+    try {
+      const result = await compressPdf(
+        currentFile,
+        { mode: selectedMode, targetBytes },
+        (msg) => setProcessing(true, msg),
+      );
+      setProcessing(false);
+      showResult(result);
+    } catch (err) {
+      setProcessing(false);
+      setError(err instanceof Error ? err.message : 'Compression failed — please try another file.');
+    }
+  }
+
+  /* ── File selection ────────────────────────────────────────────────────── */
+  dropzone.addEventListener('filedropzone:change', async (rawEvent) => {
+    const { files } = (rawEvent as CustomEvent<{ files: File[] }>).detail;
+    if (!files.length) return;
+    currentFile = files[0];
+    await runCompression();
+  });
+
+  /* ── Re-compress button ────────────────────────────────────────────────── */
+  recompressBtn.addEventListener('click', runCompression);
+</script>

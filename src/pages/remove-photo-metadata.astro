@@ -1,0 +1,352 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FileDropzone from '../components/FileDropzone.astro';
+import PrivacyBadge from '../components/PrivacyBadge.astro';
+import FaqBlock, { type FaqItem } from '../components/FaqBlock.astro';
+
+const faqs: FaqItem[] = [
+  {
+    question: 'What metadata does this remove?',
+    answer:
+      'For JPEG files: all EXIF data is stripped from the binary file — GPS coordinates, camera make and model, lens model, date and time taken, software, artist, and copyright tags, plus any other EXIF/IPTC fields. The pixel data is never touched, so there is zero image quality loss. For PNG files: the image is re-rendered through a canvas (still lossless for PNG) which removes all embedded text chunks (tEXt, iTXt, zTXt).',
+  },
+  {
+    question: 'Why does my photo contain GPS coordinates?',
+    answer:
+      'Smartphones embed your GPS location into every photo by default, often with precision down to a few metres. When you share a photo — via email, social media, messaging apps, or by uploading it anywhere — this location data travels with the file. Anyone who receives the raw file can extract your exact address from it using free tools.',
+  },
+  {
+    question: 'Is my photo uploaded anywhere?',
+    answer:
+      'No. Everything happens inside your browser tab. Your files never leave your device — this page works entirely offline once loaded. We have no server that could receive file data.',
+  },
+  {
+    question: 'Does stripping metadata change the image quality?',
+    answer:
+      'For JPEG files, no: we remove the EXIF segment from the file\'s binary structure without re-encoding the image. The pixels are identical to the original. For PNG files, the image is re-drawn through an HTML canvas — PNG is a lossless format, so there is no quality loss, though the file size may differ slightly due to PNG\'s compression.',
+  },
+];
+---
+
+<BaseLayout
+  title="Remove Metadata from Photos — Strip EXIF, GPS & Camera Info"
+  description="Remove GPS location, camera info, and all hidden EXIF metadata from JPEG and PNG photos entirely in your browser. Nothing is uploaded."
+  canonicalPath="/remove-photo-metadata"
+>
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 py-12">
+    <!-- Page header -->
+    <div class="mb-8">
+      <div class="flex items-center gap-3 mb-4 flex-wrap">
+        <span class="text-3xl leading-none" aria-hidden="true">🔐</span>
+        <PrivacyBadge size="sm" />
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 tracking-tight">
+        Remove Metadata from Photos
+      </h1>
+      <p class="text-gray-500 text-lg leading-relaxed">
+        Your photos secretly contain GPS coordinates, camera model, and the exact date they
+        were taken. Strip all of it before you share — entirely in your browser.
+      </p>
+    </div>
+
+    <!-- Dropzone -->
+    <FileDropzone
+      id="meta-dropzone"
+      accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+      multiple={true}
+      label="Drop your photos here, or click to select"
+      hint="Supports JPEG and PNG — GPS, camera info, and all EXIF will be removed"
+    />
+
+    <!-- Status -->
+    <div id="status-area" class="mt-4 min-h-[1.5rem]" aria-live="polite" aria-atomic="true">
+      <div id="status-processing" class="hidden items-center gap-3 text-blue-600 text-sm">
+        <svg
+          class="animate-spin shrink-0"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          aria-hidden="true"
+        >
+          <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+        </svg>
+        <span id="status-text">Processing…</span>
+      </div>
+      <p id="status-error" class="hidden text-red-600 text-sm"></p>
+    </div>
+
+    <!-- Results -->
+    <section id="results-area" class="mt-8 hidden" aria-labelledby="results-heading">
+      <div class="flex items-center justify-between mb-4">
+        <h2 id="results-heading" class="font-semibold text-gray-900">Cleaned files</h2>
+        <button
+          id="download-all-btn"
+          class="hidden text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline underline-offset-2 transition-colors"
+          type="button"
+        >
+          Download all
+        </button>
+      </div>
+      <ul
+        id="results-list"
+        class="space-y-4"
+        role="list"
+        aria-label="Photos with metadata removed, ready to download"
+      >
+      </ul>
+    </section>
+
+    <!-- FAQ -->
+    <FaqBlock items={faqs} />
+
+    <!-- Cross-links to other tools -->
+    <div class="mt-12 border-t border-gray-100 pt-8">
+      <p class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-4">More tools</p>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <a href="/heic-to-jpg" class="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 hover:border-blue-300 hover:shadow-sm transition-all">
+          <span class="text-xl leading-none shrink-0" aria-hidden="true">🖼️</span>
+          <div class="min-w-0">
+            <p class="font-medium text-gray-900 text-sm">HEIC to JPG</p>
+            <p class="text-xs text-gray-500 mt-0.5">Convert iPhone photos</p>
+          </div>
+        </a>
+        <a href="/compress-pdf" class="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 hover:border-blue-300 hover:shadow-sm transition-all">
+          <span class="text-xl leading-none shrink-0" aria-hidden="true">📄</span>
+          <div class="min-w-0">
+            <p class="font-medium text-gray-900 text-sm">Compress PDF</p>
+            <p class="text-xs text-gray-500 mt-0.5">Hit any size limit</p>
+          </div>
+        </a>
+        <a href="/encrypt-file" class="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 hover:border-blue-300 hover:shadow-sm transition-all">
+          <span class="text-xl leading-none shrink-0" aria-hidden="true">🔑</span>
+          <div class="min-w-0">
+            <p class="font-medium text-gray-900 text-sm">Encrypt a File</p>
+            <p class="text-xs text-gray-500 mt-0.5">AES-256 password protection</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  import { stripMetadata, type StripResult, type PhotoMeta } from '../lib/stripMeta';
+  import { downloadBlob, downloadAll } from '../lib/download';
+
+  /* ── DOM refs ──────────────────────────────────────────────────────────── */
+  const dropzone = document.getElementById('meta-dropzone')!;
+  const statusProcessing = document.getElementById('status-processing')!;
+  const statusText = document.getElementById('status-text')!;
+  const statusError = document.getElementById('status-error')!;
+  const resultsArea = document.getElementById('results-area')!;
+  const resultsList = document.getElementById('results-list')!;
+  const downloadAllBtn = document.getElementById('download-all-btn')!;
+
+  /* ── State ─────────────────────────────────────────────────────────────── */
+  let cleanedItems: { blob: Blob; filename: string }[] = [];
+
+  /* ── Status helpers ────────────────────────────────────────────────────── */
+  function setProcessing(active: boolean, message = ''): void {
+    statusText.textContent = message;
+    statusProcessing.classList.toggle('hidden', !active);
+    statusProcessing.classList.toggle('flex', active);
+  }
+
+  function setError(message: string): void {
+    statusError.textContent = message;
+    statusError.classList.toggle('hidden', !message);
+  }
+
+  /* ── Byte formatting ───────────────────────────────────────────────────── */
+  function fmtBytes(n: number): string {
+    if (n < 1024) return `${n} B`;
+    if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+    return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  /* ── Metadata row builder ──────────────────────────────────────────────── */
+  function buildMetaRows(meta: PhotoMeta): HTMLElement[] {
+    const rows: Array<{ label: string; value: string; extra?: HTMLElement }> = [];
+
+    if (meta.gps) {
+      const link = document.createElement('a');
+      link.href = `https://www.openstreetmap.org/?mlat=${meta.gps.lat.toFixed(5)}&mlon=${meta.gps.lon.toFixed(5)}#map=14/${meta.gps.lat.toFixed(5)}/${meta.gps.lon.toFixed(5)}`;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.textContent = 'View on map ↗';
+      link.className = 'ml-2 text-blue-600 hover:underline underline-offset-2 text-xs font-medium';
+      rows.push({ label: '📍 GPS location', value: meta.gps.display, extra: link });
+    }
+
+    if (meta.make || meta.model) {
+      rows.push({ label: '📷 Camera', value: [meta.make, meta.model].filter(Boolean).join(' ') });
+    }
+    if (meta.lensModel) {
+      rows.push({ label: '🔭 Lens', value: meta.lensModel });
+    }
+    if (meta.datetime) {
+      // "2024:03:15 10:23:44" → "2024-03-15 10:23:44"
+      rows.push({ label: '📅 Date taken', value: meta.datetime.replace(/^(\d{4}):(\d{2}):(\d{2})/, '$1-$2-$3') });
+    }
+    if (meta.software) {
+      rows.push({ label: '💻 Software', value: meta.software });
+    }
+    if (meta.artist) {
+      rows.push({ label: '👤 Artist', value: meta.artist });
+    }
+    if (meta.copyright) {
+      rows.push({ label: '©️ Copyright', value: meta.copyright });
+    }
+
+    return rows.map(({ label, value, extra }) => {
+      const row = document.createElement('div');
+      row.className = 'flex items-baseline gap-3 text-sm py-1.5 border-b border-gray-100 last:border-0';
+
+      const labelEl = document.createElement('span');
+      labelEl.className = 'w-32 shrink-0 text-gray-500 text-xs';
+      labelEl.textContent = label;
+
+      const valueEl = document.createElement('span');
+      valueEl.className = 'flex-1 text-gray-800 font-medium break-all';
+      valueEl.textContent = value;
+      if (extra) valueEl.appendChild(extra);
+
+      const check = document.createElement('span');
+      check.className = 'shrink-0 text-green-500 text-xs font-medium';
+      check.textContent = '✓ removed';
+      check.setAttribute('aria-label', 'removed');
+
+      row.append(labelEl, valueEl, check);
+      return row;
+    });
+  }
+
+  /* ── Result card builder ───────────────────────────────────────────────── */
+  function buildResultCard(result: StripResult): HTMLLIElement {
+    const li = document.createElement('li');
+    li.className = 'rounded-2xl border border-gray-200 bg-white overflow-hidden';
+
+    // ── Header bar ────────────────────────────────────────────────────────
+    const header = document.createElement('div');
+    header.className = 'flex items-center gap-3 px-5 py-3 bg-gray-50 border-b border-gray-100';
+
+    const thumb = document.createElement('img');
+    thumb.src = URL.createObjectURL(result.blob);
+    thumb.alt = '';
+    thumb.setAttribute('aria-hidden', 'true');
+    thumb.className = 'h-10 w-10 rounded-lg object-cover shrink-0 border border-gray-200';
+
+    const nameBlock = document.createElement('div');
+    nameBlock.className = 'flex-1 min-w-0';
+
+    const nameEl = document.createElement('p');
+    nameEl.className = 'font-medium text-gray-900 text-sm truncate';
+    nameEl.textContent = result.filename;
+
+    const sizeEl = document.createElement('p');
+    sizeEl.className = 'text-xs text-gray-400 mt-0.5';
+    const saved = result.sizeBefore - result.sizeAfter;
+    sizeEl.textContent =
+      saved > 0
+        ? `${fmtBytes(result.sizeBefore)} → ${fmtBytes(result.sizeAfter)} (saved ${fmtBytes(saved)})`
+        : `${fmtBytes(result.sizeAfter)}`;
+
+    nameBlock.append(nameEl, sizeEl);
+    header.append(thumb, nameBlock);
+    li.appendChild(header);
+
+    // ── Body ──────────────────────────────────────────────────────────────
+    const body = document.createElement('div');
+    body.className = 'px-5 py-4';
+
+    if (result.meta.hasExif) {
+      const found = document.createElement('p');
+      found.className = 'text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2';
+      found.textContent = `Found and removed (${result.meta.fieldCount} field${result.meta.fieldCount !== 1 ? 's' : ''})`;
+      body.appendChild(found);
+
+      const metaList = document.createElement('div');
+      metaList.className = 'divide-y divide-gray-100';
+      buildMetaRows(result.meta).forEach((r) => metaList.appendChild(r));
+      body.appendChild(metaList);
+    } else {
+      const empty = document.createElement('p');
+      empty.className = 'text-sm text-gray-500 py-1';
+      if (result.redrawn) {
+        empty.textContent =
+          'No EXIF metadata found. The PNG was re-rendered through canvas to remove any embedded text chunks.';
+      } else {
+        empty.textContent = 'No EXIF metadata was found in this file.';
+      }
+      body.appendChild(empty);
+    }
+
+    if (result.redrawn && result.meta.fieldCount === 0) {
+      // Already handled above, but add note if redrawn JPEG fallback
+    } else if (result.redrawn) {
+      const note = document.createElement('p');
+      note.className = 'mt-3 text-xs text-gray-400';
+      note.textContent = 'PNG re-rendered through canvas (lossless) to strip metadata chunks.';
+      body.appendChild(note);
+    }
+
+    // ── Footer: download ──────────────────────────────────────────────────
+    const footer = document.createElement('div');
+    footer.className = 'px-5 py-3 border-t border-gray-100 flex justify-end';
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className =
+      'rounded-lg bg-blue-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-blue-700 transition-colors';
+    btn.textContent = 'Download clean copy';
+    btn.setAttribute('aria-label', `Download ${result.filename} with metadata removed`);
+    btn.addEventListener('click', () => downloadBlob(result.blob, result.filename));
+
+    footer.appendChild(btn);
+    li.append(body, footer);
+    return li;
+  }
+
+  /* ── Main processing handler ───────────────────────────────────────────── */
+  dropzone.addEventListener('filedropzone:change', async (rawEvent) => {
+    const { files } = (rawEvent as CustomEvent<{ files: File[] }>).detail;
+    if (!files.length) return;
+
+    resultsList.innerHTML = '';
+    cleanedItems = [];
+    resultsArea.classList.add('hidden');
+    downloadAllBtn.classList.add('hidden');
+    setError('');
+
+    const errors: string[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      setProcessing(true, `Processing ${i + 1} of ${files.length}: ${file.name}`);
+
+      try {
+        const result = await stripMetadata(file);
+        cleanedItems.push({ blob: result.blob, filename: result.filename });
+        resultsList.appendChild(buildResultCard(result));
+      } catch (err) {
+        errors.push(`${file.name}: ${err instanceof Error ? err.message : 'failed'}`);
+      }
+    }
+
+    setProcessing(false);
+
+    if (cleanedItems.length > 0) {
+      resultsArea.classList.remove('hidden');
+      if (cleanedItems.length > 1) downloadAllBtn.classList.remove('hidden');
+    }
+
+    if (errors.length > 0) {
+      setError(errors.length === 1 ? errors[0] : `${errors.length} files failed: ${errors.join(' · ')}`);
+    }
+  });
+
+  downloadAllBtn.addEventListener('click', () => downloadAll(cleanedItems));
+</script>

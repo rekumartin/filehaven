@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Focus ring ───────────────────────────────────────────────────────────────
+   Visible on all backgrounds: blue ring + white "halo" so the ring doesn't
+   blend into blue buttons or dark surfaces. */
+*:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+  border-radius: 4px;
+  /* White shadow creates contrast gap between element and blue ring */
+  box-shadow: 0 0 0 4px white;
+}
+
+/* On blue/colored buttons the ring needs to invert — white ring, dark offset */
+[class~="bg-blue-600"]:focus-visible,
+[class~="bg-blue-700"]:focus-visible,
+[class~="bg-blue-500"]:focus-visible {
+  outline-color: white;
+  box-shadow: 0 0 0 4px #1d4ed8; /* blue-700 outer ring */
+}
+
+/* ── Details / Summary ────────────────────────────────────────────────────────
+   Remove browser's default disclosure triangle */
+details > summary {
+  list-style: none;
+}
+details > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* ── Smooth transitions on details/summary ────────────────────────────────── */
+details > summary:focus-visible {
+  border-radius: 0; /* summary is full-width — no radius clipping */
+}

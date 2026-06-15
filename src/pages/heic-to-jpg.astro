@@ -1,0 +1,249 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FileDropzone from '../components/FileDropzone.astro';
+import PrivacyBadge from '../components/PrivacyBadge.astro';
+import FaqBlock, { type FaqItem } from '../components/FaqBlock.astro';
+
+const faqs: FaqItem[] = [
+  {
+    question: 'Are my photos uploaded to a server?',
+    answer:
+      'No — never. All conversion happens entirely in your browser using JavaScript. Your photos never leave your device. The page will even work if you disconnect from the internet after it loads.',
+  },
+  {
+    question: 'Why can\'t I open or share HEIC photos on Windows or the web?',
+    answer:
+      'HEIC (High Efficiency Image Container) is Apple\'s default photo format since iOS 11. It compresses better than JPG but is not widely supported outside of Apple devices. Windows, most websites, and most social platforms only accept JPG or PNG — converting to JPG makes your photos universally compatible.',
+  },
+  {
+    question: 'Will converting to JPG reduce the photo quality?',
+    answer:
+      'This tool converts at 92% JPG quality, which is visually indistinguishable from the original for almost all photos. JPG is a lossy format, so very minor compression artefacts are inherent to the format — but at 92% quality they are imperceptible to the human eye.',
+  },
+  {
+    question: 'Does this work on Windows, Android, and Linux?',
+    answer:
+      'Yes. The tool runs in any modern browser — Chrome, Firefox, Edge, Safari — on Windows, Mac, Linux, Android, and iOS. No app or plugin installation needed.',
+  },
+];
+---
+
+<BaseLayout
+  title="Convert HEIC to JPG — Free, Private, No Upload Required"
+  description="Convert HEIC and HEIF photos to JPG instantly in your browser. No upload, no account, no size limits. Works on iPhone photos and any HEIC file."
+  canonicalPath="/heic-to-jpg"
+>
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 py-12">
+    <!-- Page header -->
+    <div class="mb-8">
+      <div class="flex items-center gap-3 mb-4 flex-wrap">
+        <span class="text-3xl leading-none" aria-hidden="true">🖼️</span>
+        <PrivacyBadge size="sm" />
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 tracking-tight">
+        Convert HEIC to JPG
+      </h1>
+      <p class="text-gray-500 text-lg leading-relaxed">
+        Convert your iPhone HEIC/HEIF photos to JPG entirely in your browser.
+        Select multiple files at once — no upload, no waiting, no size limits.
+      </p>
+    </div>
+
+    <!-- Drop zone -->
+    <FileDropzone
+      id="heic-dropzone"
+      accept=".heic,.heif,image/heic,image/heif"
+      multiple={true}
+      label="Drop your HEIC photos here, or click to select"
+      hint="Supports .heic and .heif files (iPhone, iPad, and others)"
+    />
+
+    <!-- Status area -->
+    <div id="status-area" class="mt-4 min-h-[1.5rem]" aria-live="polite" aria-atomic="true">
+      <div id="status-processing" class="hidden items-center gap-3 text-blue-600 text-sm">
+        <svg
+          class="animate-spin shrink-0"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          aria-hidden="true"
+        >
+          <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+        </svg>
+        <span id="status-text">Converting…</span>
+      </div>
+      <p id="status-error" class="hidden text-red-600 text-sm"></p>
+    </div>
+
+    <!-- Results -->
+    <section id="results-area" class="mt-8 hidden" aria-labelledby="results-heading">
+      <div class="flex items-center justify-between mb-4">
+        <h2 id="results-heading" class="font-semibold text-gray-900">Converted files</h2>
+        <button
+          id="download-all-btn"
+          class="hidden text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline underline-offset-2 transition-colors"
+          type="button"
+        >
+          Download all
+        </button>
+      </div>
+      <ul
+        id="results-list"
+        class="space-y-3"
+        role="list"
+        aria-label="Converted image files ready to download"
+      >
+      </ul>
+    </section>
+
+    <!-- FAQ -->
+    <FaqBlock items={faqs} />
+
+    <!-- Cross-links to other tools -->
+    <div class="mt-12 border-t border-gray-100 pt-8">
+      <p class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-4">More tools</p>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <a href="/remove-photo-metadata" class="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 hover:border-blue-300 hover:shadow-sm transition-all">
+          <span class="text-xl leading-none shrink-0" aria-hidden="true">🔐</span>
+          <div class="min-w-0">
+            <p class="font-medium text-gray-900 text-sm">Remove Metadata</p>
+            <p class="text-xs text-gray-500 mt-0.5">Strip GPS from your new JPGs</p>
+          </div>
+        </a>
+        <a href="/compress-pdf" class="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 hover:border-blue-300 hover:shadow-sm transition-all">
+          <span class="text-xl leading-none shrink-0" aria-hidden="true">📄</span>
+          <div class="min-w-0">
+            <p class="font-medium text-gray-900 text-sm">Compress PDF</p>
+            <p class="text-xs text-gray-500 mt-0.5">Hit any size limit</p>
+          </div>
+        </a>
+        <a href="/encrypt-file" class="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 hover:border-blue-300 hover:shadow-sm transition-all">
+          <span class="text-xl leading-none shrink-0" aria-hidden="true">🔑</span>
+          <div class="min-w-0">
+            <p class="font-medium text-gray-900 text-sm">Encrypt a File</p>
+            <p class="text-xs text-gray-500 mt-0.5">AES-256 password protection</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  // heic2any is a browser-only UMD library — dynamic import keeps it out of the SSR pass
+  const { default: heic2any } = await import('heic2any');
+  import { downloadBlob, downloadAll } from '../lib/download';
+
+  /* ── DOM refs ──────────────────────────────────────────────────────────── */
+  const dropzone = document.getElementById('heic-dropzone')!;
+  const statusProcessing = document.getElementById('status-processing')!;
+  const statusText = document.getElementById('status-text')!;
+  const statusError = document.getElementById('status-error')!;
+  const resultsArea = document.getElementById('results-area')!;
+  const resultsList = document.getElementById('results-list')!;
+  const downloadAllBtn = document.getElementById('download-all-btn')!;
+
+  /* ── State ─────────────────────────────────────────────────────────────── */
+  let convertedItems: { blob: Blob; filename: string }[] = [];
+
+  /* ── Helpers ───────────────────────────────────────────────────────────── */
+  function setProcessing(active: boolean, message = ''): void {
+    if (active) {
+      statusText.textContent = message;
+      statusProcessing.classList.remove('hidden');
+      statusProcessing.classList.add('flex');
+    } else {
+      statusProcessing.classList.add('hidden');
+      statusProcessing.classList.remove('flex');
+    }
+  }
+
+  function setError(message: string): void {
+    statusError.textContent = message;
+    statusError.classList.toggle('hidden', !message);
+  }
+
+  function buildResultItem(blob: Blob, filename: string): HTMLLIElement {
+    const li = document.createElement('li');
+    li.className =
+      'flex items-center gap-4 rounded-xl border border-gray-100 bg-gray-50 px-4 py-3';
+
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(blob);
+    img.alt = `Preview of ${filename}`;
+    img.className = 'h-12 w-12 rounded-lg object-cover shrink-0 border border-gray-200';
+
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'flex-1 text-sm text-gray-700 truncate min-w-0 font-medium';
+    nameSpan.textContent = filename;
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className =
+      'shrink-0 rounded-lg bg-blue-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-blue-700 transition-colors';
+    btn.textContent = 'Download';
+    btn.setAttribute('aria-label', `Download ${filename}`);
+    btn.addEventListener('click', () => downloadBlob(blob, filename));
+
+    li.append(img, nameSpan, btn);
+    return li;
+  }
+
+  /* ── Conversion handler ────────────────────────────────────────────────── */
+  dropzone.addEventListener('filedropzone:change', async (rawEvent) => {
+    const { files } = (rawEvent as CustomEvent<{ files: File[] }>).detail;
+    if (!files.length) return;
+
+    // Reset previous results
+    resultsList.innerHTML = '';
+    convertedItems = [];
+    resultsArea.classList.add('hidden');
+    downloadAllBtn.classList.add('hidden');
+    setError('');
+
+    setProcessing(true, `Converting 1 of ${files.length}…`);
+
+    const errors: string[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      setProcessing(true, `Converting ${i + 1} of ${files.length}: ${file.name}`);
+
+      try {
+        const result = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.92 });
+        const blob = Array.isArray(result) ? result[0] : result;
+        const filename = file.name.replace(/\.(heic|heif)$/i, '.jpg');
+        convertedItems.push({ blob, filename });
+        resultsList.appendChild(buildResultItem(blob, filename));
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'conversion failed';
+        errors.push(`${file.name}: ${msg}`);
+      }
+    }
+
+    setProcessing(false);
+
+    if (convertedItems.length > 0) {
+      resultsArea.classList.remove('hidden');
+      if (convertedItems.length > 1) {
+        downloadAllBtn.classList.remove('hidden');
+      }
+    }
+
+    if (errors.length > 0) {
+      setError(
+        errors.length === 1
+          ? `Could not convert ${errors[0]}`
+          : `${errors.length} files failed: ${errors.join(' · ')}`,
+      );
+    }
+  });
+
+  /* ── Download all ──────────────────────────────────────────────────────── */
+  downloadAllBtn.addEventListener('click', () => {
+    downloadAll(convertedItems);
+  });
+</script>
