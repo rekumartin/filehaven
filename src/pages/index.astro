@@ -101,6 +101,23 @@ const faqs: FaqItem[] = [
     </div>
   </section>
 
+  <!-- Credibility metrics -->
+  <section class="max-w-5xl mx-auto px-4 sm:px-6 pb-12" aria-label="Stats">
+    <div class="flex flex-wrap gap-x-10 gap-y-4 py-6 border-y border-stone-100">
+      {[
+        { stat: '4', label: 'tools' },
+        { stat: '0', label: 'files ever uploaded' },
+        { stat: '100%', label: 'runs in your browser' },
+        { stat: '∞', label: 'file size limit' },
+      ].map(({ stat, label }) => (
+        <div class="flex items-baseline gap-2">
+          <span class="text-2xl font-bold text-stone-900 tabular-nums">{stat}</span>
+          <span class="text-sm text-stone-500">{label}</span>
+        </div>
+      ))}
+    </div>
+  </section>
+
   <!-- Tools grid -->
   <section class="max-w-5xl mx-auto px-4 sm:px-6 pb-20" aria-labelledby="tools-heading">
     <p id="tools-heading" class="text-xs font-medium tracking-widest uppercase text-stone-400 mb-4">Tools</p>
@@ -136,7 +153,10 @@ const faqs: FaqItem[] = [
         <p class="text-xs text-stone-400 mt-0.5">downloads instantly</p>
       </div>
     </div>
-    <p class="text-xs text-stone-400 mt-6">No server involved at any step. No upload. No account. No waiting.</p>
+    <p class="text-xs text-stone-400 mt-6 leading-relaxed max-w-lg">
+      No server involved at any step. No upload. No account. No waiting.<br />
+      <span class="text-stone-400">Powered by <strong class="font-medium text-stone-500">WebAssembly</strong>, the <strong class="font-medium text-stone-500">Web Crypto API</strong>, the <strong class="font-medium text-stone-500">Canvas API</strong>, and the browser <strong class="font-medium text-stone-500">File API</strong> — the same technologies used in secure messaging and banking apps.</span>
+    </p>
   </section>
 
   <!-- Verify it yourself -->
@@ -275,7 +295,32 @@ const faqs: FaqItem[] = [
   </section>
 
   <!-- FAQ -->
-  <section class="max-w-5xl mx-auto px-4 sm:px-6 pb-28 border-t border-stone-100 pt-14">
+  <section class="max-w-5xl mx-auto px-4 sm:px-6 pb-20 border-t border-stone-100 pt-14">
     <FaqBlock items={faqs} heading="Common questions" />
+  </section>
+
+  <!-- Roadmap -->
+  <section class="max-w-5xl mx-auto px-4 sm:px-6 pb-28 border-t border-stone-100 pt-14">
+    <p class="text-xs font-medium tracking-widest uppercase text-stone-400 mb-2">What's coming</p>
+    <p class="text-sm text-stone-500 mb-6">The project is under active development. Planned tools:</p>
+    <div class="space-y-3 max-w-sm">
+      {[
+        'Merge PDFs — combine multiple files locally',
+        'Convert images — PNG, WebP, AVIF and more',
+        'Resize and compress images without quality loss',
+        'Extract or reorder pages from a PDF',
+      ].map((item) => (
+        <div class="flex items-start gap-3 text-sm text-stone-500">
+          <div class="mt-0.5 w-3.5 h-3.5 rounded border border-stone-300 shrink-0" aria-hidden="true"></div>
+          {item}
+        </div>
+      ))}
+    </div>
+    <p class="text-xs text-stone-400 mt-5">
+      Suggest a tool or follow progress on{' '}
+      <a href="https://github.com/rekumartin/private-file-tools" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 hover:text-stone-600">
+        GitHub
+      </a>.
+    </p>
   </section>
 </BaseLayout>
