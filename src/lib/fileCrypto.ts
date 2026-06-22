@@ -118,7 +118,7 @@ export async function decryptFile(encFile: File, password: string): Promise<Decr
   const magic = new TextDecoder().decode(data.slice(0, 8));
   if (magic !== MAGIC) {
     throw new Error(
-      'This does not look like a PrivateFileTools encrypted file. ' +
+      'This does not look like a FileHaven encrypted file.' +
         'Make sure you selected a .enc file created by this tool.',
     );
   }

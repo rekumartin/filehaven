@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import FileDropzone from '../components/FileDropzone.astro';
 import FaqBlock, { type FaqItem } from '../components/FaqBlock.astro';
+import CoffeeBanner from '../components/CoffeeBanner.astro';
 
 const b = import.meta.env.BASE_URL;
 const faqs: FaqItem[] = [
@@ -90,6 +91,8 @@ const faqs: FaqItem[] = [
       >
       </ul>
     </section>
+
+    <CoffeeBanner />
 
     <FaqBlock items={faqs} />
 
@@ -207,6 +210,7 @@ const faqs: FaqItem[] = [
       if (convertedItems.length > 1) {
         downloadAllBtn.classList.remove('hidden');
       }
+      document.getElementById('coffee-banner')?.classList.remove('hidden');
     }
 
     if (errors.length > 0) {

@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import FileDropzone from '../components/FileDropzone.astro';
 import FaqBlock, { type FaqItem } from '../components/FaqBlock.astro';
+import CoffeeBanner from '../components/CoffeeBanner.astro';
 
 const b = import.meta.env.BASE_URL;
 const faqs: FaqItem[] = [
@@ -216,6 +217,8 @@ const faqs: FaqItem[] = [
       <div id="result-card"></div>
     </section>
 
+    <CoffeeBanner />
+
     <FaqBlock items={faqs} />
 
     <div class="mt-12 pt-8 border-t border-stone-100">
@@ -402,6 +405,7 @@ const faqs: FaqItem[] = [
 
   function showResult(blob: Blob, filename: string, note?: string): void {
     resultsArea.classList.remove('hidden');
+    document.getElementById('coffee-banner')?.classList.remove('hidden');
     resultCard.innerHTML = '';
 
     const card = document.createElement('div');
