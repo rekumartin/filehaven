@@ -179,7 +179,7 @@ async function processJpeg(file: File): Promise<StripResult> {
   try {
     cleanStr = piexif.remove(binaryStr);
   } catch {
-    cleanStr = binaryStr;
+    throw new Error('Could not strip metadata — this JPEG may be malformed or unsupported.');
   }
 
   const blob = binaryStringToBlob(cleanStr, 'image/jpeg');
