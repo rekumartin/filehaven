@@ -1,11 +1,11 @@
 ---
 name: run-private-file-tools
-description: Run, screenshot, or drive the private-file-tools Astro web app. Use this skill to start the dev server, take screenshots of any page, smoke-test all routes for JS errors, or run named UI interactions (encrypt mode switch, password toggle, PDF rasterize mode). Triggers on: run, start, screenshot, smoke, verify, drive, test UI.
+description: Run, screenshot, or drive the FileHaven Astro web app. Use this skill to start the dev server, take screenshots of any page, smoke-test all routes for JS errors, or run named UI interactions (encrypt mode switch, password toggle, PDF rasterize mode). Triggers on: run, start, screenshot, smoke, verify, drive, test UI.
 ---
 
 # run-private-file-tools
 
-Astro 6 static web app. Driven by Playwright (headless Chromium) via
+FileHaven — Astro 6 static web app. Driven by Playwright (headless Chromium) via
 `.claude/skills/run-private-file-tools/driver.mjs`. No xvfb needed —
 Playwright runs headless.
 
@@ -101,9 +101,9 @@ npm run dev
 
 - **BASE_PATH for GitHub Pages build** — `npm run build` produces a
   root-relative build by default. For a GitHub Pages build where assets
-  live under `/private-file-tools/`, set the env var:
+  live under `/filehaven/`, set the env var:
   ```bash
-  BASE_PATH=/private-file-tools/ npm run build
+  BASE_PATH=/filehaven/ npm run build
   ```
   The dev/preview server always uses `/` — no env var needed locally.
 

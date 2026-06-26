@@ -1,5 +1,5 @@
 {
-  "name": "private-file-tools",
+  "name": "filehaven",
   "version": "0.1.0",
   "description": "Privacy-first, client-side file tools — nothing is uploaded",
   "type": "module",
