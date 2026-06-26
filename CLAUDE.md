@@ -1,4 +1,4 @@
-# CLAUDE.md — private-file-tools
+# CLAUDE.md — filehaven
 
 ## Core rule
 **Every file a user gives is processed 100% in the browser. Nothing is ever uploaded to any server. There is no backend.**
