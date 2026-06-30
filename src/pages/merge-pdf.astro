@@ -1,0 +1,317 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FileDropzone from '../components/FileDropzone.astro';
+import FaqBlock, { type FaqItem } from '../components/FaqBlock.astro';
+import CoffeeBanner from '../components/CoffeeBanner.astro';
+
+const b = import.meta.env.BASE_URL;
+const faqs: FaqItem[] = [
+  {
+    question: 'Are my PDFs uploaded to a server?',
+    answer:
+      'No. The merge happens entirely inside your browser tab. Your files never leave your device — this page works offline once loaded. We have no server that could receive your files.',
+  },
+  {
+    question: 'In what order are the PDFs combined?',
+    answer:
+      'In the order they appear in the list below. Use the up/down arrows to reorder files before merging, or remove a file you added by mistake.',
+  },
+  {
+    question: 'Is there a limit on file size or number of files?',
+    answer:
+      'No artificial limit — only the memory available in your browser tab. Very large PDFs (hundreds of pages or very high-resolution scans) may take longer or use more memory since everything runs locally.',
+  },
+  {
+    question: 'Does merging change page quality or content?',
+    answer:
+      'No. Pages are copied directly from each source PDF into the new file — no re-encoding, no rasterization, no quality loss. Text stays selectable and links still work.',
+  },
+  {
+    question: 'Does this work with password-protected PDFs?',
+    answer:
+      'No. Password-protected PDFs cannot be loaded or modified without the password. Please remove the password using your PDF application first, then merge here.',
+  },
+];
+---
+
+<BaseLayout
+  title="Merge PDFs Without Uploading — Free, Offline PDF Combiner"
+  description="Combine multiple PDF files into one, entirely offline in your browser. Reorder pages before merging. No upload, no account, no watermark."
+  canonicalPath="/merge-pdf"
+>
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 py-12">
+    <div class="mb-8">
+      <h1 class="text-3xl sm:text-4xl font-bold text-stone-900 mb-3 tracking-tight">
+        Merge PDFs
+      </h1>
+      <p class="text-stone-500 text-lg leading-relaxed">
+        Combine multiple PDF files into one, in the order you choose — entirely in your browser.
+      </p>
+    </div>
+
+    <FileDropzone
+      id="merge-dropzone"
+      accept=".pdf,application/pdf"
+      multiple={true}
+      label="Drop PDFs here, or click to select"
+      hint="Select two or more PDF files — drop more at any time to add them"
+    />
+
+    <section id="file-list-area" class="mt-6 hidden" aria-labelledby="file-list-heading">
+      <div class="flex items-center justify-between mb-3">
+        <h2 id="file-list-heading" class="font-semibold text-stone-900 text-sm">
+          Files to merge <span id="file-count" class="text-stone-400 font-normal"></span>
+        </h2>
+        <button
+          id="clear-files-btn"
+          type="button"
+          class="text-xs font-medium text-stone-500 hover:text-stone-900 hover:underline underline-offset-2 transition-colors"
+        >
+          Clear all
+        </button>
+      </div>
+      <ul id="file-list" class="space-y-2" role="list" aria-label="PDF files in merge order"></ul>
+
+      <button
+        id="merge-btn"
+        type="button"
+        disabled
+        class="mt-4 w-full sm:w-auto rounded-md bg-stone-900 px-6 py-2.5 text-sm font-medium text-white hover:bg-stone-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+      >
+        Merge PDFs
+      </button>
+    </section>
+
+    <div id="status-area" class="mt-4 min-h-[1.5rem]" aria-live="polite" aria-atomic="true">
+      <div id="status-processing" class="hidden items-center gap-3 text-stone-600 text-sm">
+        <svg
+          class="animate-spin shrink-0"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          aria-hidden="true"
+        >
+          <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+        </svg>
+        <span id="status-text">Processing…</span>
+      </div>
+      <p id="status-error" class="hidden text-red-600 text-sm"></p>
+    </div>
+
+    <section id="results-area" class="mt-8 hidden" aria-labelledby="results-heading">
+      <h2 id="results-heading" class="font-semibold text-stone-900 text-sm mb-4">Result</h2>
+      <div id="result-card"></div>
+    </section>
+
+    <CoffeeBanner />
+
+    <FaqBlock items={faqs} />
+
+    <div class="mt-12 pt-8 border-t border-stone-100">
+      <p class="text-xs font-medium uppercase tracking-widest text-stone-400 mb-3">More tools</p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+        <a href={`${b}heic-to-jpg`} class="block px-4 py-3 rounded-lg border border-stone-200 hover:border-stone-400 hover:bg-white transition-all group">
+          <p class="text-sm font-medium text-stone-800 group-hover:text-stone-900">HEIC to JPG</p>
+          <p class="text-xs text-stone-500 mt-0.5">Convert iPhone photos</p>
+        </a>
+        <a href={`${b}compress-pdf`} class="block px-4 py-3 rounded-lg border border-stone-200 hover:border-stone-400 hover:bg-white transition-all group">
+          <p class="text-sm font-medium text-stone-800 group-hover:text-stone-900">Compress PDF</p>
+          <p class="text-xs text-stone-500 mt-0.5">Hit any size limit</p>
+        </a>
+        <a href={`${b}remove-photo-metadata`} class="block px-4 py-3 rounded-lg border border-stone-200 hover:border-stone-400 hover:bg-white transition-all group">
+          <p class="text-sm font-medium text-stone-800 group-hover:text-stone-900">Remove Metadata</p>
+          <p class="text-xs text-stone-500 mt-0.5">Strip GPS and camera info</p>
+        </a>
+        <a href={`${b}encrypt-file`} class="block px-4 py-3 rounded-lg border border-stone-200 hover:border-stone-400 hover:bg-white transition-all group">
+          <p class="text-sm font-medium text-stone-800 group-hover:text-stone-900">Encrypt a File</p>
+          <p class="text-xs text-stone-500 mt-0.5">AES-256 password protection</p>
+        </a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  import { mergePdfs, type MergeResult } from '../lib/pdfMerge';
+  import { downloadBlob } from '../lib/download';
+
+  const dropzone = document.getElementById('merge-dropzone')!;
+  const fileListArea = document.getElementById('file-list-area')!;
+  const fileList = document.getElementById('file-list')!;
+  const fileCount = document.getElementById('file-count')!;
+  const clearFilesBtn = document.getElementById('clear-files-btn')!;
+  const mergeBtn = document.getElementById('merge-btn') as HTMLButtonElement;
+  const statusProcessing = document.getElementById('status-processing')!;
+  const statusText = document.getElementById('status-text')!;
+  const statusError = document.getElementById('status-error')!;
+  const resultsArea = document.getElementById('results-area')!;
+  const resultCard = document.getElementById('result-card')!;
+
+  let files: File[] = [];
+
+  function fmtBytes(n: number): string {
+    if (n < 1_024) return `${n} B`;
+    if (n < 1_048_576) return `${(n / 1_024).toFixed(1)} KB`;
+    return `${(n / 1_048_576).toFixed(2)} MB`;
+  }
+
+  function setProcessing(active: boolean, message = ''): void {
+    statusText.textContent = message;
+    statusProcessing.classList.toggle('hidden', !active);
+    statusProcessing.classList.toggle('flex', active);
+  }
+
+  function setError(message: string): void {
+    statusError.textContent = message;
+    statusError.classList.toggle('hidden', !message);
+  }
+
+  function moveFile(index: number, delta: number): void {
+    const target = index + delta;
+    if (target < 0 || target >= files.length) return;
+    [files[index], files[target]] = [files[target], files[index]];
+    renderFileList();
+  }
+
+  function removeFile(index: number): void {
+    files.splice(index, 1);
+    renderFileList();
+  }
+
+  function renderFileList(): void {
+    fileList.innerHTML = '';
+    fileCount.textContent = files.length > 0 ? `(${files.length})` : '';
+    fileListArea.classList.toggle('hidden', files.length === 0);
+    mergeBtn.disabled = files.length < 2;
+    resultsArea.classList.add('hidden');
+    setError('');
+
+    files.forEach((file, i) => {
+      const li = document.createElement('li');
+      li.className =
+        'flex items-center gap-3 rounded-lg border border-stone-200 bg-white px-4 py-2.5';
+
+      const order = document.createElement('span');
+      order.className =
+        'shrink-0 w-6 h-6 rounded-full bg-stone-100 text-stone-500 text-xs flex items-center justify-center font-medium';
+      order.textContent = String(i + 1);
+
+      const nameBlock = document.createElement('div');
+      nameBlock.className = 'flex-1 min-w-0';
+      const nameEl = document.createElement('p');
+      nameEl.className = 'text-sm font-medium text-stone-800 truncate';
+      nameEl.textContent = file.name;
+      const sizeEl = document.createElement('p');
+      sizeEl.className = 'text-xs text-stone-400';
+      sizeEl.textContent = fmtBytes(file.size);
+      nameBlock.append(nameEl, sizeEl);
+
+      const controls = document.createElement('div');
+      controls.className = 'flex items-center gap-1 shrink-0';
+
+      const upBtn = document.createElement('button');
+      upBtn.type = 'button';
+      upBtn.disabled = i === 0;
+      upBtn.setAttribute('aria-label', `Move ${file.name} up`);
+      upBtn.className =
+        'h-7 w-7 flex items-center justify-center rounded-md text-stone-500 hover:bg-stone-100 hover:text-stone-900 disabled:opacity-30 disabled:hover:bg-transparent transition-colors';
+      upBtn.innerHTML =
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg>';
+      upBtn.addEventListener('click', () => moveFile(i, -1));
+
+      const downBtn = document.createElement('button');
+      downBtn.type = 'button';
+      downBtn.disabled = i === files.length - 1;
+      downBtn.setAttribute('aria-label', `Move ${file.name} down`);
+      downBtn.className =
+        'h-7 w-7 flex items-center justify-center rounded-md text-stone-500 hover:bg-stone-100 hover:text-stone-900 disabled:opacity-30 disabled:hover:bg-transparent transition-colors';
+      downBtn.innerHTML =
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+      downBtn.addEventListener('click', () => moveFile(i, 1));
+
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.setAttribute('aria-label', `Remove ${file.name}`);
+      removeBtn.className =
+        'h-7 w-7 flex items-center justify-center rounded-md text-stone-400 hover:bg-red-50 hover:text-red-600 transition-colors';
+      removeBtn.innerHTML =
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
+      removeBtn.addEventListener('click', () => removeFile(i));
+
+      controls.append(upBtn, downBtn, removeBtn);
+      li.append(order, nameBlock, controls);
+      fileList.appendChild(li);
+    });
+  }
+
+  function showResult(result: MergeResult): void {
+    resultsArea.classList.remove('hidden');
+    document.getElementById('coffee-banner')?.classList.remove('hidden');
+    resultCard.innerHTML = '';
+
+    const card = document.createElement('div');
+    card.className = 'rounded-lg border border-stone-200 bg-white overflow-hidden';
+
+    const row = document.createElement('div');
+    row.className = 'px-5 py-4 flex flex-col sm:flex-row sm:items-center gap-4';
+
+    const info = document.createElement('div');
+    info.className = 'flex-1 space-y-1';
+    const line1 = document.createElement('p');
+    line1.className = 'text-sm';
+    line1.innerHTML = `<strong class="text-green-700">Merged</strong> ${result.fileCount} files into one PDF`;
+    const line2 = document.createElement('p');
+    line2.className = 'text-sm text-stone-500';
+    line2.textContent = `${result.pageCount} page${result.pageCount !== 1 ? 's' : ''} · ${fmtBytes(result.bytes.byteLength)}`;
+    info.append(line1, line2);
+
+    const dlBtn = document.createElement('button');
+    dlBtn.type = 'button';
+    dlBtn.className =
+      'shrink-0 rounded-md bg-stone-900 px-5 py-2 text-sm font-medium text-white hover:bg-stone-800 transition-colors';
+    dlBtn.textContent = 'Download';
+    dlBtn.setAttribute('aria-label', `Download ${result.filename}`);
+    dlBtn.addEventListener('click', () =>
+      downloadBlob(new Blob([result.bytes], { type: 'application/pdf' }), result.filename),
+    );
+
+    row.append(info, dlBtn);
+    card.appendChild(row);
+    resultCard.appendChild(card);
+  }
+
+  async function runMerge(): Promise<void> {
+    if (files.length < 2) return;
+
+    resultsArea.classList.add('hidden');
+    resultCard.innerHTML = '';
+    setError('');
+    setProcessing(true, 'Starting…');
+
+    try {
+      const result = await mergePdfs(files, 'merged.pdf', (msg) => setProcessing(true, msg));
+      setProcessing(false);
+      showResult(result);
+    } catch (err) {
+      setProcessing(false);
+      setError(err instanceof Error ? err.message : 'Merge failed — please try again.');
+    }
+  }
+
+  dropzone.addEventListener('filedropzone:change', (rawEvent) => {
+    const { files: newFiles } = (rawEvent as CustomEvent<{ files: File[] }>).detail;
+    if (!newFiles.length) return;
+    files = [...files, ...newFiles];
+    renderFileList();
+  });
+
+  clearFilesBtn.addEventListener('click', () => {
+    files = [];
+    renderFileList();
+  });
+
+  mergeBtn.addEventListener('click', runMerge);
+</script>
